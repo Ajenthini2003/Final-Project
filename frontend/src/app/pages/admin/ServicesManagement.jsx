@@ -12,7 +12,7 @@ import {
 } from '../../components/ui/dialog';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
-import { Search, Plus, Edit, Trash2, DollarSign, Clock } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Clock } from 'lucide-react';
 import { serviceCategories } from '../../data/services';
 import { toast } from 'sonner';
 
@@ -44,7 +44,13 @@ export default function ServicesManagement() {
   const handleAddService = () => {
     toast.success('Service added successfully');
     setIsAddDialogOpen(false);
-    setNewService({ name: '', category: '', description: '', priceRange: '', estimatedTime: '' });
+    setNewService({
+      name: '',
+      category: '',
+      description: '',
+      priceRange: '',
+      estimatedTime: '',
+    });
   };
 
   return (
@@ -71,14 +77,18 @@ export default function ServicesManagement() {
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-3xl font-bold text-blue-600">{serviceCategories.length}</p>
+              <p className="text-3xl font-bold text-blue-600">
+                {serviceCategories.length}
+              </p>
               <p className="text-sm text-gray-600 mt-1">Categories</p>
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
@@ -134,35 +144,41 @@ export default function ServicesManagement() {
                   </th>
                 </tr>
               </thead>
+
               <tbody>
                 {filteredServices.slice(0, 20).map((service) => (
-                  <tr key={service.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr
+                    key={service.id}
+                    className="border-b border-gray-100 hover:bg-gray-50"
+                  >
                     <td className="py-3 px-4 text-sm font-medium text-gray-900">
                       {service.id.toUpperCase()}
                     </td>
+
                     <td className="py-3 px-4">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{service.name}</p>
-                        <p className="text-xs text-gray-500 line-clamp-1">
-                          {service.description}
-                        </p>
-                      </div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {service.name}
+                      </p>
+                      <p className="text-xs text-gray-500 line-clamp-1">
+                        {service.description}
+                      </p>
                     </td>
+
                     <td className="py-3 px-4">
                       <Badge variant="outline">{service.categoryName}</Badge>
                     </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-1 text-sm text-gray-700">
-                        <DollarSign className="w-3 h-3" />
-                        {service.priceRange}
-                      </div>
+
+                    <td className="py-3 px-4 text-sm text-gray-700">
+                      {service.priceRange}
                     </td>
+
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1 text-sm text-gray-700">
                         <Clock className="w-3 h-3" />
                         {service.estimatedTime}
                       </div>
                     </td>
+
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="sm">
@@ -187,21 +203,26 @@ export default function ServicesManagement() {
           <DialogHeader>
             <DialogTitle>Add New Service</DialogTitle>
           </DialogHeader>
+
           <div className="space-y-4">
             <div>
               <Label>Service Name</Label>
               <Input
                 value={newService.name}
-                onChange={(e) => setNewService({ ...newService, name: e.target.value })}
-                placeholder="e.g., AC Gas Refilling"
+                onChange={(e) =>
+                  setNewService({ ...newService, name: e.target.value })
+                }
               />
             </div>
+
             <div>
               <Label>Category</Label>
               <select
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 value={newService.category}
-                onChange={(e) => setNewService({ ...newService, category: e.target.value })}
+                onChange={(e) =>
+                  setNewService({ ...newService, category: e.target.value })
+                }
               >
                 <option value="">Select Category</option>
                 {serviceCategories.map((cat) => (
@@ -211,33 +232,41 @@ export default function ServicesManagement() {
                 ))}
               </select>
             </div>
+
             <div>
               <Label>Description</Label>
               <Textarea
                 value={newService.description}
-                onChange={(e) => setNewService({ ...newService, description: e.target.value })}
-                placeholder="Describe the service..."
+                onChange={(e) =>
+                  setNewService({ ...newService, description: e.target.value })
+                }
               />
             </div>
+
             <div>
               <Label>Price Range</Label>
               <Input
                 value={newService.priceRange}
-                onChange={(e) => setNewService({ ...newService, priceRange: e.target.value })}
-                placeholder="e.g., Rs. 2,500 - 6,000"
+                onChange={(e) =>
+                  setNewService({ ...newService, priceRange: e.target.value })
+                }
               />
             </div>
+
             <div>
               <Label>Estimated Time</Label>
               <Input
                 value={newService.estimatedTime}
                 onChange={(e) =>
-                  setNewService({ ...newService, estimatedTime: e.target.value })
+                  setNewService({
+                    ...newService,
+                    estimatedTime: e.target.value,
+                  })
                 }
-                placeholder="e.g., 1-2 hours"
               />
             </div>
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
               Cancel

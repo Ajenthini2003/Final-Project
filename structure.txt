@@ -1,0 +1,352 @@
+├── backend/
+│   ├── app.js
+│   ├── config/
+│   │   ├── cloudinary.js
+│   │   ├── database.js
+│   │   ├── redis.js
+│   │   ├── socket.js
+│   │   └── stripe.js
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── bookingController.js
+│   │   ├── notificationController.js
+│   │   ├── paymentController.js
+│   │   ├── planController.js
+│   │   ├── reportController.js
+│   │   ├── serviceController.js
+│   │   ├── subscriptionController.js
+│   │   ├── technicianController.js
+│   │   └── userController.js
+│   ├── ecosystem.config.js
+│   ├── generateToken.js
+│   ├── jobs/
+│   │   ├── EmailJob.js
+│   │   └── NotificationJob.js
+│   ├── middleware/
+│   │   ├── adminAuth.js
+│   │   ├── authMiddleware.js
+│   │   ├── error/
+│   │   │   └── asyncHandler.js
+│   │   ├── errorHandler.js
+│   │   ├── security/
+│   │   │   ├── rateLimiter.js
+│   │   │   └── validation.js
+│   │   └── validateRequest.js
+│   ├── models/
+│   │   ├── Booking.js
+│   │   ├── Notification.js
+│   │   ├── Payment.js
+│   │   ├── Plan.js
+│   │   ├── Service.js
+│   │   ├── Technician.js
+│   │   └── User.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── bookings.js
+│   │   ├── notifications.js
+│   │   ├── payments.js
+│   │   ├── plans.js
+│   │   ├── reports.js
+│   │   ├── services.js
+│   │   ├── technicians.js
+│   │   └── users.js
+│   ├── seed/
+│   │   ├── seedPlans.js
+│   │   └── seedServices.js
+│   ├── server.js
+│   ├── services/
+│   │   ├── AuthService.js
+│   │   ├── BookingService.js
+│   │   ├── CacheService.js
+│   │   ├── EmailService.js
+│   │   ├── NotificationService.js
+│   │   ├── PaymentsService.js
+│   │   └── SMSService.js
+│   ├── sockets/
+│   │   ├── BookingSocket.js
+│   │   └── index.js
+│   ├── test-env.js
+│   └── tests/
+│       ├── auth.test.js
+│       └── users.test.js
+├── frontend/
+│   ├── guidelines/
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── src/
+│   │   ├── api/
+│   │   │   ├── client/
+│   │   │   │   ├── axios.js
+│   │   │   │   └── websocket.js
+│   │   │   ├── endpoints/
+│   │   │   │   ├── admin.js
+│   │   │   │   ├── auth.js
+│   │   │   │   ├── bookings.js
+│   │   │   │   ├── index.js
+│   │   │   │   ├── payments.js
+│   │   │   │   ├── technicians.js
+│   │   │   │   └── users.js
+│   │   │   ├── hooks/
+│   │   │   │   ├── useApi.js
+│   │   │   │   └── useQuery.js
+│   │   │   └── services.js
+│   │   ├── api.js
+│   │   ├── app/
+│   │   │   ├── App.jsx
+│   │   │   ├── components/
+│   │   │   │   ├── admin/
+│   │   │   │   │   └── AdminLayout.jsx
+│   │   │   │   ├── common/
+│   │   │   │   │   ├── Cards/
+│   │   │   │   │   │   ├── BookingCard.jsx
+│   │   │   │   │   │   ├── ServiiceCard.jsx
+│   │   │   │   │   │   └── TechnicianCard.jsx
+│   │   │   │   │   ├── DataDisplay/
+│   │   │   │   │   │   ├── DataTable.jsx
+│   │   │   │   │   │   ├── Filters.jsx
+│   │   │   │   │   │   ├── Pagination.jsx
+│   │   │   │   │   │   └── SearchBar.jsx
+│   │   │   │   │   ├── Error/
+│   │   │   │   │   │   ├── ErrorBoundary.jsx
+│   │   │   │   │   │   ├── ErrorFallback.jsx
+│   │   │   │   │   │   └── NotFound.jsx
+│   │   │   │   │   ├── Forms/
+│   │   │   │   │   │   ├── FormDatePicker.jsx
+│   │   │   │   │   │   ├── FormInput.jsx
+│   │   │   │   │   │   ├── FormSelect.jsx
+│   │   │   │   │   │   ├── FormTextarea.jsx
+│   │   │   │   │   │   └── FormWrapper.jsx
+│   │   │   │   │   ├── index.js
+│   │   │   │   │   ├── Loader/
+│   │   │   │   │   │   ├── PageLoader.jsx
+│   │   │   │   │   │   └── Spinner.jsx
+│   │   │   │   │   └── Modals/
+│   │   │   │   │       ├── AlertModal.jsx
+│   │   │   │   │       └── ConfirmModal.jsx
+│   │   │   │   ├── DashboardLayout.jsx
+│   │   │   │   ├── features/
+│   │   │   │   │   ├── admin/
+│   │   │   │   │   │   ├── Charts/
+│   │   │   │   │   │   │   ├── BarChart.jsx
+│   │   │   │   │   │   │   ├── LineChart.jsx
+│   │   │   │   │   │   │   └── PieChart.jsx
+│   │   │   │   │   │   ├── Dashboard/
+│   │   │   │   │   │   │   ├── RecentActivity.jsx
+│   │   │   │   │   │   │   ├── RevenueChart.jsx
+│   │   │   │   │   │   │   └── StatsCards.jsx
+│   │   │   │   │   │   └── Tables/
+│   │   │   │   │   │       ├── BookingTable.jsx
+│   │   │   │   │   │       ├── PaymentsTable.jsx
+│   │   │   │   │   │       └── UserTable.jsx
+│   │   │   │   │   ├── auth/
+│   │   │   │   │   │   ├── ForgotPassword.jsx
+│   │   │   │   │   │   ├── LoginForm.jsx
+│   │   │   │   │   │   ├── OTPVerification.jsx
+│   │   │   │   │   │   ├── ResetPassword.jsx
+│   │   │   │   │   │   ├── SignupForm.jsx
+│   │   │   │   │   │   └── SocialLogin.jsx
+│   │   │   │   │   ├── booking/
+│   │   │   │   │   │   ├── AddressForm.jsx
+│   │   │   │   │   │   ├── BookingHistory.jsx
+│   │   │   │   │   │   ├── BookingStatus.jsx
+│   │   │   │   │   │   ├── BookingSummary.jsx
+│   │   │   │   │   │   ├── BookingWizard.jsx
+│   │   │   │   │   │   ├── DateTimerPicker.jsx
+│   │   │   │   │   │   └── ServiceSelection.jsx
+│   │   │   │   │   ├── notifications/
+│   │   │   │   │   │   ├── NotificationBell.jsx
+│   │   │   │   │   │   ├── NotificationItem.jsx
+│   │   │   │   │   │   └── NotificationList.jsx
+│   │   │   │   │   ├── payment/
+│   │   │   │   │   │   ├── Invoice.jsx
+│   │   │   │   │   │   ├── PaymentMethods.jsx
+│   │   │   │   │   │   ├── StripePayment.jsx
+│   │   │   │   │   │   ├── TransactionList.jsx
+│   │   │   │   │   │   └── Wallet.jsx
+│   │   │   │   │   └── technician/
+│   │   │   │   │       ├── AssignedJobs.jsx
+│   │   │   │   │       ├── AvailabilityCalendar.jsx
+│   │   │   │   │       ├── Earnings.jsx
+│   │   │   │   │       └── TechnicianProfile.jsx
+│   │   │   │   ├── index.jsx
+│   │   │   │   ├── layout/
+│   │   │   │   │   ├── Footer/
+│   │   │   │   │   │   ├── Footer.jsx
+│   │   │   │   │   │   └── Newsletter.jsx
+│   │   │   │   │   ├── Header/
+│   │   │   │   │   │   ├── Header.jsx
+│   │   │   │   │   │   ├── MobileMenu.jsx
+│   │   │   │   │   │   └── Navbar.jsx
+│   │   │   │   │   ├── index.js
+│   │   │   │   │   └── Sidebar/
+│   │   │   │   │       ├── Sidebar.jsx
+│   │   │   │   │       └── SidebarItem.jsx
+│   │   │   │   ├── media/
+│   │   │   │   │   └── ImageWithFallback.jsx
+│   │   │   │   ├── service-category.jsx
+│   │   │   │   └── ui/
+│   │   │   │       ├── accordion.jsx
+│   │   │   │       ├── alert-dialog.jsx
+│   │   │   │       ├── alert.jsx
+│   │   │   │       ├── aspect-ratio.jsx
+│   │   │   │       ├── avatar.jsx
+│   │   │   │       ├── badge.jsx
+│   │   │   │       ├── breadcrumb.jsx
+│   │   │   │       ├── button.jsx
+│   │   │   │       ├── calendar.jsx
+│   │   │   │       ├── card.jsx
+│   │   │   │       ├── carousel.jsx
+│   │   │   │       ├── chart.jsx
+│   │   │   │       ├── checkbox.jsx
+│   │   │   │       ├── collapsible.jsx
+│   │   │   │       ├── command.jsx
+│   │   │   │       ├── context-menu.jsx
+│   │   │   │       ├── dialog.jsx
+│   │   │   │       ├── drawer.jsx
+│   │   │   │       ├── dropdown-menu.jsx
+│   │   │   │       ├── form.jsx
+│   │   │   │       ├── hover-card.jsx
+│   │   │   │       ├── input-otp.jsx
+│   │   │   │       ├── input.jsx
+│   │   │   │       ├── label.jsx
+│   │   │   │       ├── menubar.jsx
+│   │   │   │       ├── navigation-menu.jsx
+│   │   │   │       ├── pagination.jsx
+│   │   │   │       ├── popover.jsx
+│   │   │   │       ├── progress.jsx
+│   │   │   │       ├── radio-group.jsx
+│   │   │   │       ├── resizable.jsx
+│   │   │   │       ├── scroll-area.jsx
+│   │   │   │       ├── select.jsx
+│   │   │   │       ├── separator.jsx
+│   │   │   │       ├── sheet.jsx
+│   │   │   │       ├── sidebar.jsx
+│   │   │   │       ├── skeleton.jsx
+│   │   │   │       ├── slider.jsx
+│   │   │   │       ├── sonner.jsx
+│   │   │   │       ├── switch.jsx
+│   │   │   │       ├── table.jsx
+│   │   │   │       ├── tabs.jsx
+│   │   │   │       ├── textarea.jsx
+│   │   │   │       ├── toggle-group.jsx
+│   │   │   │       ├── toggle.jsx
+│   │   │   │       ├── tooltip.jsx
+│   │   │   │       ├── use-mobile.js
+│   │   │   │       └── utils.js
+│   │   │   ├── contexts/
+│   │   │   │   ├── AppContext.jsx
+│   │   │   │   ├── AuthContext.jsx
+│   │   │   │   ├── BookingContext.jsx
+│   │   │   │   ├── LanguageContext.jsx
+│   │   │   │   ├── NotificationContext.jsx
+│   │   │   │   ├── SocketContext.jsx
+│   │   │   │   └── ThemeContext.jsx
+│   │   │   ├── data/
+│   │   │   │   └── services.js
+│   │   │   ├── hooks/
+│   │   │   │   ├── useAuth.js
+│   │   │   │   ├── useBooking.js
+│   │   │   │   ├── useDebounce.js
+│   │   │   │   ├── useGeoLocation.js
+│   │   │   │   ├── useLocalStorage.js
+│   │   │   │   ├── useNotification.js
+│   │   │   │   ├── usePayment.js
+│   │   │   │   ├── usePermission.js
+│   │   │   │   ├── useResponsive.js
+│   │   │   │   └── useSocket.js
+│   │   │   ├── pages/
+│   │   │   │   ├── admin/
+│   │   │   │   │   ├── AdminDashboard.jsx
+│   │   │   │   │   ├── AdminLogin.jsx
+│   │   │   │   │   ├── AdminNotifications.jsx
+│   │   │   │   │   ├── AdminSignup.jsx
+│   │   │   │   │   ├── AuditLogsPage.jsx
+│   │   │   │   │   ├── BookingsManagement.jsx
+│   │   │   │   │   ├── CouponsManagement.jsx
+│   │   │   │   │   ├── PaymentsManagement.jsx
+│   │   │   │   │   ├── PlansManagement.jsx
+│   │   │   │   │   ├── ReportsAnalytics.jsx
+│   │   │   │   │   ├── ServicesManagement.jsx
+│   │   │   │   │   ├── SettingsPage.jsx
+│   │   │   │   │   ├── TechniciansManagement.jsx
+│   │   │   │   │   └── UsersManagement.jsx
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── BookingsPage.jsx
+│   │   │   │   │   ├── OTPVerificationPage.jsx
+│   │   │   │   │   └── ResetPasswordPage.jsx
+│   │   │   │   ├── BookServicePage.jsx
+│   │   │   │   ├── checkout/
+│   │   │   │   │   ├── BookingFlow.jsx
+│   │   │   │   │   ├── ConfirmationPage.jsx
+│   │   │   │   │   └── PaymentPage.jsx
+│   │   │   │   ├── DashboardPage.jsx
+│   │   │   │   ├── LandingPage.jsx
+│   │   │   │   ├── LoginPage.jsx
+│   │   │   │   ├── NotificationsPage.jsx
+│   │   │   │   ├── OnboardingPage.jsx
+│   │   │   │   ├── PaymentsPage.jsx
+│   │   │   │   ├── PlansPage.jsx
+│   │   │   │   ├── ProfilePage.jsx
+│   │   │   │   ├── public/
+│   │   │   │   │   ├── AboutPage.jsx
+│   │   │   │   │   ├── BlogPage.jsx
+│   │   │   │   │   ├── ContactPage.jsx
+│   │   │   │   │   └── FAQPage.jsx
+│   │   │   │   ├── ServiceHistoryPage.jsx
+│   │   │   │   ├── ServicesPage.jsx
+│   │   │   │   ├── SignUpPage.jsx
+│   │   │   │   ├── SupportPage.jsx
+│   │   │   │   ├── technician/
+│   │   │   │   │   ├── AvailabilityPage.jsx
+│   │   │   │   │   ├── EarningsPage.jsx
+│   │   │   │   │   ├── JobsPage.jsx
+│   │   │   │   │   ├── TechnicianDashboard.jsx
+│   │   │   │   │   └── TechnicianProfilePage.jsx
+│   │   │   │   ├── TechniciansPage.jsx
+│   │   │   │   └── user/
+│   │   │   │       ├── AddressBookPage.jsx
+│   │   │   │       ├── BookingDetailsPage.jsx
+│   │   │   │       ├── BookingsPage.jsx
+│   │   │   │       ├── ReviewsPage.jsx
+│   │   │   │       ├── SettingsPage.jsx
+│   │   │   │       └── WalletPage.jsx
+│   │   │   └── store/
+│   │   │       ├── rootReducer.js
+│   │   │       ├── slices/
+│   │   │       │   ├── authSlice.js
+│   │   │       │   ├── bookingSlice.js
+│   │   │       │   ├── paymentSlice.js
+│   │   │       │   ├── technicianSlice.js
+│   │   │       │   ├── uiSlice.js
+│   │   │       │   └── userSlice.js
+│   │   │       └── store.js
+│   │   ├── App.jsx
+│   │   ├── lib/
+│   │   │   ├── constants/
+│   │   │   │   ├── config.js
+│   │   │   │   ├── roles.js
+│   │   │   │   ├── routes.js
+│   │   │   │   └── status.js
+│   │   │   ├── formatters/
+│   │   │   │   ├── currency.js
+│   │   │   │   ├── date.js
+│   │   │   │   └── phone.js
+│   │   │   ├── utils.js
+│   │   │   └── validators/
+│   │   │       ├── auth.js
+│   │   │       ├── booking.js
+│   │   │       └── payment.js
+│   │   ├── main.jsx
+│   │   ├── router.jsx
+│   │   ├── styles/
+│   │   │   ├── components/
+│   │   │   └── themes/
+│   │   └── types/
+│   │       ├── api.js
+│   │       ├── booking.js
+│   │       ├── index.js
+│   │       └── user.js
+│   └── vite.config.js
+├── generate-tree.js

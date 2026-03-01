@@ -1,40 +1,31 @@
+// src/app/pages/LoginPage.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useApp } from "../contexts/AppContext";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "../components/ui/card";
 import { Wrench } from "lucide-react";
 import { toast } from "sonner";
 
-// ✅ USE CENTRAL API
-import { loginUser } from "../../api";
-
 export default function LoginPage() {
-  const { setUser } = useApp();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ----- AUTO LOGIN IF USER EXISTS IN LOCALSTORAGE -----
+  // Redirect if already authenticated
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const userObj = JSON.parse(storedUser);
-        setUser(userObj);
-        navigate("/dashboard");
-      } catch (err) {
-        console.error("Failed to parse stored user:", err);
-        localStorage.removeItem("user");
-      }
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
     }
-  }, [setUser, navigate]);
+  }, [isAuthenticated, navigate, from]);
 
-  // ----- HANDLE LOGIN -----
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -48,44 +39,22 @@ export default function LoginPage() {
     try {
       console.log("Logging in:", email);
 
-      // ✅ Correct login call
-      const userData = await loginUser({ email, password });
-
-      if (!userData || !userData._id) {
-        toast.error("Login failed: no user data returned");
-        return;
+      const result = await login({ email, password, remember });
+      
+      if (result.success) {
+        toast.success("Login successful!");
+        console.log("Login successful, navigating to", from);
+        // Navigation will happen automatically via the useEffect above
+      } else {
+        toast.error(result.error || "Login failed");
       }
-
-      // Set user in context
-      setUser(userData);
-
-      // Persist if remember me is checked
-      if (remember) {
-        localStorage.setItem("user", JSON.stringify(userData));
-      }
-
-      toast.success("Login successful!");
-      navigate("/dashboard");
+      
     } catch (err) {
       console.error("Login error:", err);
-      toast.error(err.response?.data?.message || "Login failed");
+      toast.error(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
-  };
-
-  // ----- DEMO LOGIN BUTTON -----
-  const handleDemoLogin = () => {
-    const demoUser = {
-      _id: "user-demo",
-      name: "Demo User",
-      email: "demo@fixmate.lk",
-      role: "user",
-    };
-    setUser(demoUser);
-    localStorage.setItem("user", JSON.stringify(demoUser));
-    toast.success("Logged in as demo user!");
-    navigate("/dashboard");
   };
 
   return (
@@ -113,6 +82,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
 
@@ -127,6 +97,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
 
@@ -138,6 +109,7 @@ export default function LoginPage() {
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
                   className="w-4 h-4"
+                  disabled={loading}
                 />
                 <label htmlFor="remember" className="cursor-pointer">
                   Remember me
@@ -159,22 +131,6 @@ export default function LoginPage() {
               </Link>
             </div>
           </form>
-
-          {/* Demo Access */}
-          <div className="mt-6 text-center text-gray-500 text-xs">
-            <div className="relative mb-1">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t"></div>
-              </div>
-              <div className="relative flex justify-center">
-                <span className="px-2 bg-white">Demo Access</span>
-              </div>
-            </div>
-            <p>Email: demo@fixmate.lk | Password: demo123</p>
-            <Button variant="secondary" className="mt-2" onClick={handleDemoLogin}>
-              Login as Demo User
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

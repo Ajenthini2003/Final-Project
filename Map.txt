@@ -1,138 +1,43 @@
-Final-project-Re...
-├── backend/
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── paymentController.js
-│   │   ├── planController.js
-│   │   └── subscriptionController.js
-│   ├── middleware/
-│   │   ├── authMiddleware.js
-│   │   └── errorHandler.js
-│   ├── models/
-│   │   ├── Booking.js
-│   │   ├── Notification.js
-│   │   ├── Payment.js
-│   │   ├── Plan.js
-│   │   ├── Service.js
-│   │   ├── Technician.js
-│   │   └── User.js
-│   ├── node_modules/
-│   └── routes/
-│       ├── auth.js
-│       ├── bookings.js
-│       ├── notifications.js
-│       ├── payments.js
-│       ├── plans.js
-│       ├── services.js
-│       ├── technicians.js
-│       └── users.js
-├── frontend/
-├── .env
-├── package-lock.json    (M - Modified)
-├── package.json         (M - Modified)
-├── seedPlans.js         (U - Unmodified/Untracked)
-├── server.js            (M - Modified)
-└── test.js              (U - Unmodified/Untracked)
+Clean Solution (UTF-8 safe)
 
+Open your generate-tree.js file.
 
+Replace your console.log lines with this version that writes UTF-8 directly:
 
+const fs = require("fs");
+const path = require("path");
 
+const ignoreFolders = ["node_modules", ".git", "dist", "build"];
+const includeFiles = [".js", ".jsx", ".json", ".env"];
 
+let output = "";
 
+function walk(dir, prefix = "") {
+  const items = fs.readdirSync(dir).filter(f => !ignoreFolders.includes(f));
+  items.forEach((item, index) => {
+    const fullPath = path.join(dir, item);
+    const stats = fs.statSync(fullPath);
+    const isLast = index === items.length - 1;
+    const connector = isLast ? "└── " : "├── ";
 
+    if (stats.isDirectory()) {
+      output += prefix + connector + item + "/\n";
+      walk(fullPath, prefix + (isLast ? "    " : "│   "));
+    } else {
+      const ext = path.extname(item);
+      if (includeFiles.includes(ext) || ["package.json", "server.js", "vite.config.js"].includes(item)) {
+        output += prefix + connector + item + "\n";
+      }
+    }
+  });
+}
 
-frontend/
-└── src/
-    ├── api.js
-    │
-    ├── app/
-    │   ├── App.jsx
-    │   │
-    │   ├── components/
-    │   │   ├── DashboardLayout.jsx
-    │   │   ├── service-category.jsx
-    │   │   │
-    │   │   ├── media/
-    │   │   │   └── ImageWithFallback.jsx
-    │   │   │
-    │   │   └── ui/
-    │   │       ├── accordion.jsx
-    │   │       ├── alert.jsx
-    │   │       ├── alert-dialog.jsx
-    │   │       ├── aspect-ratio.jsx
-    │   │       ├── avatar.jsx
-    │   │       ├── badge.jsx
-    │   │       ├── breadcrumb.jsx
-    │   │       ├── button.jsx
-    │   │       ├── calendar.jsx
-    │   │       ├── card.jsx
-    │   │       ├── carousel.jsx
-    │   │       ├── chart.jsx
-    │   │       ├── checkbox.jsx
-    │   │       ├── collapsible.jsx
-    │   │       ├── command.jsx
-    │   │       ├── context-menu.jsx
-    │   │       ├── dialog.jsx
-    │   │       ├── drawer.jsx
-    │   │       ├── dropdown-menu.jsx
-    │   │       ├── form.jsx
-    │   │       ├── hover-card.jsx
-    │   │       ├── input.jsx
-    │   │       ├── input-otp.jsx
-    │   │       ├── label.jsx
-    │   │       ├── menubar.jsx
-    │   │       ├── navigation-menu.jsx
-    │   │       ├── pagination.jsx
-    │   │       ├── popover.jsx
-    │   │       ├── progress.jsx
-    │   │       ├── radio-group.jsx
-    │   │       ├── resizable.jsx
-    │   │       ├── scroll-area.jsx
-    │   │       ├── select.jsx
-    │   │       ├── separator.jsx
-    │   │       ├── sheet.jsx
-    │   │       ├── sidebar.jsx
-    │   │       ├── skeleton.jsx
-    │   │       ├── slider.jsx
-    │   │       ├── sonner.jsx
-    │   │       ├── switch.jsx
-    │   │       ├── table.jsx
-    │   │       ├── tabs.jsx
-    │   │       ├── textarea.jsx
-    │   │       ├── toggle.java ❌ (should delete)
-    │   │       ├── tooltip.jsx
-    │   │       ├── use-mobile.jsx
-    │   │       └── utils.js
-    │   │
-    │   ├── contexts/
-    │   │   ├── AppContext.jsx
-    │   │   └── LanguageContext.jsx
-    │   │
-    │   ├── data/
-    │   │   └── service.js
-    │   │
-    │   └── pages/
-    │       ├── BookServicePage.jsx
-    │       ├── DashboardPage.jsx
-    │       ├── LandingPage.jsx
-    │       ├── LoginPage.jsx
-    │       ├── NotificationsPage.jsx
-    │       ├── OnboardingPage.jsx
-    │       ├── PaymentsPage.jsx
-    │       ├── PlansPage.jsx
-    │       ├── ProfilePage.jsx
-    │       ├── ServiceHistoryPage.jsx
-    │       ├── ServicesPage.jsx
-    │       ├── SignUpPage.jsx
-    │       ├── SupportPage.jsx
-    │       └── TechniciansPage.jsx
-    │
-    ├── lib/
-    │   └── utils.js
-    │
-    └── styles/
-        ├── (4 style files here)
+walk("./");
 
-this is my frrontend structure . what should i do now for my backend. i finished till that.
+// Write to file with UTF-8 encoding
+fs.writeFileSync("structure.txt", output, { encoding: "utf8" });
+console.log("✅ Project tree saved to structure.txt");
 
-this is m frontend structure
+Run in PowerShell:
+
+node generate-tree.js

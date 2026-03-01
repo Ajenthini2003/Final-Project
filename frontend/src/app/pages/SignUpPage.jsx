@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+// pages/SignUpPage.jsx
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useApp } from "../contexts/AppContext";
+import { useAuth } from "../contexts/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -10,121 +12,600 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "../components/ui/card";
-import { Wrench } from "lucide-react";
+import { 
+  Wrench, 
+  Eye, 
+  EyeOff, 
+  CheckCircle, 
+  XCircle,
+  Mail,
+  Phone,
+  User,
+  Lock,
+  ArrowRight,
+  Loader2
+} from "lucide-react";
 import { toast } from "sonner";
 
-// ✅ CORRECT IMPORT
-import { signupUser } from "../../api";
+// Password strength checker
+const checkPasswordStrength = (password) => {
+  const checks = {
+    length: password.length >= 8,
+    number: /\d/.test(password),
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  };
+  
+  const strength = Object.values(checks).filter(Boolean).length;
+  return { checks, strength };
+};
 
 export default function SignUpPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+    acceptTerms: false,
+  });
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [passwordStrength, setPasswordStrength] = useState({ checks: {}, strength: 0 });
+  const [touched, setTouched] = useState({});
+  const [pendingUserData, setPendingUserData] = useState(null);
 
-  const { setUser } = useApp();
+  const { signup } = useAuth(); // Removed login from destructuring
   const navigate = useNavigate();
 
-  const handleSignUp = async (event) => {
-    event.preventDefault();
+  useEffect(() => {
+    setPasswordStrength(checkPasswordStrength(formData.password));
+  }, [formData.password]);
 
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
 
-    if (!name || !email || !phone || !password) {
-      toast.error("Please fill in all fields");
-      return;
-    }
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
 
-    try {
-      const data = await signupUser({
-        name,
-        email,
-        phone,
-        password,
-      });
+  const handleOtpChange = (index, value) => {
+    if (value.length > 1) return;
+    
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
 
-      toast.success("Account created successfully!");
-
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
-      navigate("/dashboard");
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Signup failed");
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      nextInput?.focus();
     }
   };
 
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
+
+  const validateForm = () => {
+    const errors = [];
+
+    if (!formData.name.trim()) errors.push("Name is required");
+    if (!formData.email.trim()) errors.push("Email is required");
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.push("Email is invalid");
+    
+    if (!formData.phone.trim()) errors.push("Phone number is required");
+    else if (!/^[0-9]{10,12}$/.test(formData.phone.replace(/\D/g, ''))) {
+      errors.push("Phone number must be 10-12 digits");
+    }
+    
+    if (!formData.password) errors.push("Password is required");
+    else if (passwordStrength.strength < 3) errors.push("Password is too weak");
+    
+    if (formData.password !== formData.confirmPassword) {
+      errors.push("Passwords do not match");
+    }
+    
+    if (!formData.acceptTerms) errors.push("You must accept the terms and conditions");
+
+    return errors;
+  };
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    
+    const errors = validateForm();
+    if (errors.length > 0) {
+      errors.forEach(error => toast.error(error));
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      // Store user data temporarily for OTP verification
+      setPendingUserData({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password
+      });
+
+      // Generate OTP
+      const generatedOtp = "123456";
+      console.log(`Your verification code is: ${generatedOtp}`);
+      
+      toast.success("Account created successfully! Please verify your email.");
+      toast.info(`Demo OTP: ${generatedOtp}`, {
+        duration: 10000,
+      });
+      
+      setStep(2);
+      
+    } catch (err) {
+      console.error("Signup error:", err);
+      toast.error("Signup failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const otpString = otp.join('');
+    if (otpString.length !== 6) {
+      toast.error("Please enter complete 6-digit OTP");
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      if (otpString !== "123456") {
+        toast.error("Invalid OTP. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      if (!pendingUserData) {
+        toast.error("No pending registration found");
+        setStep(1);
+        setLoading(false);
+        return;
+      }
+
+      console.log("SignUp: Creating account for", pendingUserData.email);
+      console.log("SignUp: Full pending data:", pendingUserData);
+
+      // Ensure all fields are present
+      if (!pendingUserData.name || !pendingUserData.email || !pendingUserData.phone || !pendingUserData.password) {
+        toast.error("Missing required information");
+        setLoading(false);
+        return;
+      }
+
+      // Call signup function - it returns { success, data } or { success, error }
+      const result = await signup({
+        name: pendingUserData.name.trim(),
+        email: pendingUserData.email.trim().toLowerCase(),
+        phone: pendingUserData.phone.trim(),
+        password: pendingUserData.password
+      });
+
+      if (result.success) {
+        toast.success("Email verified successfully! Welcome to FixMate!");
+        
+        // Navigate to dashboard
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1000);
+      } else {
+        toast.error(result.error || "Signup failed");
+      }
+      
+    } catch (err) {
+      console.error("OTP verification error:", err);
+      toast.error(err.message || "Verification failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (!pendingUserData) {
+        toast.error("No pending registration found");
+        setStep(1);
+        return;
+      }
+
+      console.log(`New verification code: 123456`);
+      toast.success("New verification code sent to your email");
+      toast.info("Demo OTP: 123456", {
+        duration: 5000,
+      });
+      
+    } catch (err) {
+      console.error("Resend OTP error:", err);
+      toast.error("Failed to resend code. Please try again.");
+    }
+  };
+
+  const getPasswordStrengthInfo = () => {
+    const { strength } = passwordStrength;
+    if (strength === 0) return { color: 'bg-gray-200', text: 'Enter password' };
+    if (strength <= 2) return { color: 'bg-red-500', text: 'Weak' };
+    if (strength <= 3) return { color: 'bg-yellow-500', text: 'Medium' };
+    if (strength <= 4) return { color: 'bg-green-500', text: 'Strong' };
+    return { color: 'bg-green-600', text: 'Very Strong' };
+  };
+
+  const strengthInfo = getPasswordStrengthInfo();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Wrench className="w-8 h-8 text-blue-600" />
-            <span className="text-2xl font-bold">FixMate</span>
-          </div>
-          <CardTitle>Create Account</CardTitle>
-          <CardDescription>
-            Sign up to get started with FixMate
-          </CardDescription>
-        </CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex items-center justify-center p-4 relative">
+      {/* Background Pattern */}
+      <div 
+        className="absolute inset-0 opacity-50"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}
+      />
 
-        <CardContent>
-          <form onSubmit={handleSignUp} className="space-y-4">
-            <div className="space-y-2">
-              <Label>Full Name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
+      <AnimatePresence mode="wait">
+        {step === 1 ? (
+          <motion.div
+            key="signup"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="w-full max-w-md relative z-10"
+          >
+            <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
+              <CardHeader className="text-center pb-4">
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring" }}
+                  className="flex items-center justify-center gap-2 mb-4"
+                >
+                  <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-2xl">
+                    <Wrench className="w-8 h-8 text-white" />
+                  </div>
+                </motion.div>
+                <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
+                <CardDescription className="text-base">
+                  Join FixMate for reliable repair services
+                </CardDescription>
+              </CardHeader>
 
-            <div className="space-y-2">
-              <Label>Email</Label>
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+              <CardContent>
+                <form onSubmit={handleSignUp} className="space-y-5">
+                  {/* Name Field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        onBlur={() => handleBlur('name')}
+                        className="pl-10"
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    {touched.name && !formData.name && (
+                      <p className="text-xs text-red-500 mt-1">Name is required</p>
+                    )}
+                  </div>
 
-            <div className="space-y-2">
-              <Label>Phone</Label>
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-            </div>
+                  {/* Email Field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        onBlur={() => handleBlur('email')}
+                        className="pl-10"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                    {touched.email && !formData.email && (
+                      <p className="text-xs text-red-500 mt-1">Email is required</p>
+                    )}
+                  </div>
 
-            <div className="space-y-2">
-              <Label>Password</Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+                  {/* Phone Field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        onBlur={() => handleBlur('phone')}
+                        className="pl-10"
+                        placeholder="0771234567"
+                      />
+                    </div>
+                    {touched.phone && !formData.phone && (
+                      <p className="text-xs text-red-500 mt-1">Phone is required</p>
+                    )}
+                  </div>
 
-            <div className="space-y-2">
-              <Label>Confirm Password</Label>
-              <Input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
+                  {/* Password Field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={handleChange}
+                        onBlur={() => handleBlur('password')}
+                        className="pl-10 pr-10"
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
 
-            <Button type="submit" className="w-full">
-              Create Account
-            </Button>
+                    {/* Password Strength Meter */}
+                    {formData.password && (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <div
+                              key={i}
+                              className={`h-1 flex-1 rounded-full transition-all ${
+                                i <= passwordStrength.strength
+                                  ? strengthInfo.color
+                                  : 'bg-gray-200'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <p className={`text-xs font-medium ${
+                          passwordStrength.strength <= 2 ? 'text-red-500' :
+                          passwordStrength.strength <= 3 ? 'text-yellow-500' :
+                          'text-green-500'
+                        }`}>
+                          Password Strength: {strengthInfo.text}
+                        </p>
 
-            <div className="text-center text-sm">
-              <span className="text-gray-600">Already have an account? </span>
-              <Link to="/login" className="text-blue-600 hover:underline">
-                Login
-              </Link>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+                        {/* Password Requirements */}
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <Requirement
+                            met={passwordStrength.checks.length}
+                            text="Min 8 characters"
+                          />
+                          <Requirement
+                            met={passwordStrength.checks.number}
+                            text="Contains number"
+                          />
+                          <Requirement
+                            met={passwordStrength.checks.uppercase}
+                            text="Uppercase letter"
+                          />
+                          <Requirement
+                            met={passwordStrength.checks.lowercase}
+                            text="Lowercase letter"
+                          />
+                          <Requirement
+                            met={passwordStrength.checks.special}
+                            text="Special character"
+                            className="col-span-2"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Confirm Password Field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        onBlur={() => handleBlur('confirmPassword')}
+                        className="pl-10 pr-10"
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {touched.confirmPassword && formData.password !== formData.confirmPassword && (
+                      <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+                    )}
+                  </div>
+
+                  {/* Terms and Conditions */}
+                  <div className="flex items-start space-x-2">
+                    <input
+                      type="checkbox"
+                      id="acceptTerms"
+                      name="acceptTerms"
+                      checked={formData.acceptTerms}
+                      onChange={handleChange}
+                      className="mt-1"
+                    />
+                    <Label htmlFor="acceptTerms" className="text-sm text-gray-600">
+                      I agree to the{" "}
+                      <Link to="/terms" className="text-blue-600 hover:underline">
+                        Terms of Service
+                      </Link>{" "}
+                      and{" "}
+                      <Link to="/privacy" className="text-blue-600 hover:underline">
+                        Privacy Policy
+                      </Link>
+                    </Label>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white h-12"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      <>
+                        Create Account
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+
+              <CardFooter className="flex flex-col space-y-4">
+                <div className="text-center text-sm">
+                  <span className="text-gray-600">Already have an account? </span>
+                  <Link to="/login" className="text-blue-600 hover:underline font-medium">
+                    Sign in
+                  </Link>
+                </div>
+              </CardFooter>
+            </Card>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="otp"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="w-full max-w-md relative z-10"
+          >
+            <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
+              <CardHeader className="text-center">
+                <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-2xl mx-auto w-fit mb-4">
+                  <Mail className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
+                <CardDescription>
+                  We've sent a 6-digit verification code to<br />
+                  <span className="font-medium text-blue-600">{formData.email}</span>
+                </CardDescription>
+                <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-sm text-yellow-700">
+                    <span className="font-semibold">Demo Mode:</span> Use OTP <span className="font-mono font-bold">123456</span>
+                  </p>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                <div className="flex justify-center gap-2">
+                  {otp.map((digit, index) => (
+                    <Input
+                      key={index}
+                      id={`otp-${index}`}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(index, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                      className="w-12 h-12 text-center text-lg font-semibold"
+                    />
+                  ))}
+                </div>
+
+                <Button
+                  onClick={handleVerifyOtp}
+                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white h-12"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    'Verify Email'
+                  )}
+                </Button>
+
+                <div className="text-center">
+                  <p className="text-sm text-gray-600">
+                    Didn't receive the code?{" "}
+                    <button
+                      onClick={handleResendOtp}
+                      className="text-blue-600 hover:underline font-medium"
+                    >
+                      Resend
+                    </button>
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    ← Back to sign up
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
+// Requirement component for password validation
+const Requirement = ({ met, text, className = "" }) => (
+  <div className={`flex items-center gap-1 text-xs ${className}`}>
+    {met ? (
+      <CheckCircle className="w-3 h-3 text-green-500" />
+    ) : (
+      <XCircle className="w-3 h-3 text-gray-300" />
+    )}
+    <span className={met ? "text-gray-700" : "text-gray-400"}>{text}</span>
+  </div>
+);
