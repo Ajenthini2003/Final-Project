@@ -258,7 +258,7 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = useCallback(async (profileData) => {
     setLoading(true);
     try {
-      const response = await api.put("/auth/profile", profileData);
+      const response = await api.put(`/users/${user._id}`, profileData);
       
       const updatedUser = response.data;
 

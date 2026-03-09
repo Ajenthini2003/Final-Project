@@ -1,7 +1,7 @@
 // src/app/pages/LandingPage.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApp } from "../contexts/AppContext";
+import { useAuth } from "../contexts/AuthContext"; // Change this import
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -42,7 +42,7 @@ import {
 } from "lucide-react";
 
 export default function LandingPage() {
-  const { setUser } = useApp();
+  const { setUser } = useAuth(); // Change to useAuth instead of useApp
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -72,7 +72,7 @@ export default function LandingPage() {
     localStorage.setItem("user", JSON.stringify(demoUser));
     localStorage.setItem("token", demoToken);
     
-    // Update context
+    // Update context - now using setUser from AuthContext
     setUser(demoUser);
     
     // Show success message
@@ -82,6 +82,7 @@ export default function LandingPage() {
     navigate("/dashboard");
   };
 
+  // Rest of your component remains exactly the same...
   const features = [
     { 
       icon: ShieldCheck, 

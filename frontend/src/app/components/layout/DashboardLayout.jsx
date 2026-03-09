@@ -1,6 +1,7 @@
 // src/app/components/layout/DashboardLayout.jsx
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../contexts/AppContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -24,38 +25,31 @@ import {
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import LocationBar from '../common/LocationBar';
 
 export function DashboardLayout({ children }) {
-  // 1️⃣ ALL HOOKS FIRST (unconditionally)
-  const { user, setUser, notifications = [], loading } = useApp();
+  const { user, setUser } = useAuth();
+  const { notifications = [], loading: appLoading } = useApp();
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [showLangMenu, setShowLangMenu] = useState(false);
 
-  // 2️⃣ ALL useEffect HOOKS HERE (before any returns)
   useEffect(() => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!user || !token) {
-      navigate('/login');
+      navigate('/login', { replace: true });
     }
   }, [user, navigate]);
 
-  // 3️⃣ ALL useCallback HOOKS HERE (if you had any)
-
-  // 4️⃣ NOW handle conditional rendering (after all hooks)
-  
-  // Show loader while loading
-  if (loading) {
+  if (appLoading) {
     return <PageLoader />;
   }
 
-  // Don't render if no user (the useEffect above will handle redirect)
   if (!user) {
     return null;
   }
 
-  // 5️⃣ REST OF YOUR COMPONENT LOGIC
   const unreadCount = notifications?.filter((n) => !n?.read)?.length || 0;
 
   const navigation = [
@@ -72,7 +66,6 @@ export function DashboardLayout({ children }) {
   ];
 
   const handleLogout = () => {
-    // Clear all storage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("admin");
@@ -81,6 +74,14 @@ export function DashboardLayout({ children }) {
     setUser(null);
     toast.success('Logged out successfully');
     navigate('/');
+  };
+
+  const handleTechnicianPanel = () => {
+    navigate('/technician/dashboard');
+  };
+
+  const handleAdminPanel = () => {
+    navigate('/admin-login');
   };
 
   return (
@@ -180,13 +181,27 @@ export function DashboardLayout({ children }) {
             </div>
           )}
 
-          {/* Admin Panel Link */}
-          <Link to="/admin-login">
-            <Button variant="outline" size="sm" className="w-full">
-              <Settings className="w-4 h-4 mr-2" />
-              Admin Panel
-            </Button>
-          </Link>
+          {/* Technician Panel Button - ALWAYS VISIBLE like Admin Panel button */}
+          <Button
+            onClick={handleTechnicianPanel}
+            variant="outline"
+            size="sm"
+            className="w-full text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200"
+          >
+            <Wrench className="w-4 h-4 mr-2" />
+            Technician Panel
+          </Button>
+
+          {/* Admin Panel Button */}
+          <Button
+            onClick={handleAdminPanel}
+            variant="outline"
+            size="sm"
+            className="w-full"
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Admin Panel
+          </Button>
 
           {/* Logout Button */}
           <Button
@@ -202,8 +217,21 @@ export function DashboardLayout({ children }) {
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 ml-64 p-8 overflow-auto">
-        {children}
+      <main className="flex-1 ml-64 flex flex-col min-h-screen overflow-hidden">
+
+        {/* Top header bar with location */}
+        <div className="sticky top-0 z-40 bg-white border-b shadow-sm px-8 py-3 flex items-center justify-between flex-shrink-0">
+          <LocationBar />
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Welcome, <span className="font-semibold text-gray-800">{user?.name || 'User'}</span></span>
+          </div>
+        </div>
+
+        {/* Page content */}
+        <div className="flex-1 p-8 overflow-auto">
+          {children}
+        </div>
+
       </main>
     </div>
   );

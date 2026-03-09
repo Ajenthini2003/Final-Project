@@ -1,121 +1,61 @@
-import express from "express";            //Web server create
-import cors from "cors";                 //Cross-Origin Resource Sharing (frontend from request)
-import dotenv from "dotenv";             // files variables load from .env
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
 import mongoose from "mongoose";
 import connectDB from "./config/database.js";
 
-// Load environment
 dotenv.config();
 
-// Check if MONGO_URI is set
 if (!process.env.MONGO_URI) {
-  console.error("MONGO_URI is not set in environment variables!");
-  process.exit(1);      //if not mongo-uri there,exit and error show
-} else {
-  console.log(" MONGO_URI found");             //if uri there, success
+  console.error("MONGO_URI is not set in .env!");
+  process.exit(1);
 }
 
-import authRoutes from "./routes/auth.js";     //signup,login related ,authentication routes
-import userRoutes from "./routes/users.js";     //user profile,update related
-import planRoutes from "./routes/plans.js";     //✅ ADD THIS - repair plans routes
+import authRoutes        from "./routes/auth.js";
+import userRoutes        from "./routes/users.js";
+import planRoutes        from "./routes/plans.js";
+import serviceRoutes     from "./routes/services.js";
+import bookingRoutes     from "./routes/bookings.js";
+import paymentRoutes     from "./routes/payments.js";
+import technicianRoutes  from "./routes/technicians.js";
+import adminRoutes       from "./routes/admin.js";
 
-const app = express();     //create express app
+const app = express();
 
-// CORS configuration
-app.use(cors({ 
-  origin: function(origin, callback) {
-    if (!origin || origin.startsWith('http://localhost:')) {
-      return callback(null, true);
-    }
-    return callback(null, true);
-  },
-  credentials: true 
-}));
-
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Health check route
-app.get("/health", (req, res) => {
-  const dbStatus = mongoose.connection.readyState;
-  const dbStatusText = {
-    0: 'disconnected',
-    1: 'connected',
-    2: 'connecting',
-    3: 'disconnecting'
-  }[dbStatus] || 'unknown';
-  
-  res.json({ 
-    status: "healthy",
-    mongodb: dbStatusText,
-    timestamp: new Date().toISOString()
-  });
-});
+app.get("/health",     (req, res) => res.json({ status: "healthy", mongodb: mongoose.connection.readyState === 1 ? "connected" : "disconnected" }));
+app.get("/api/health", (req, res) => res.json({ status: "healthy", mongodb: mongoose.connection.readyState === 1 ? "connected" : "disconnected" }));
+app.get("/",           (req, res) => res.json({ message: "FixMate API is running", version: "2.0.0" }));
 
-// Test route
-app.get("/", (req, res) => res.json({ 
-  message: "FixMate API is running",
-  version: "1.0.0",
-  endpoints: {
-    health: "/health",
-    auth: "/api/auth",
-    users: "/api/users",
-    plans: "/api/plans"      //✅ ADD THIS to endpoints list
-  }
-}));
+app.use("/api/auth",        authRoutes);
+app.use("/api/users",       userRoutes);
+app.use("/api/plans",       planRoutes);
+app.use("/api/services",    serviceRoutes);
+app.use("/api/bookings",    bookingRoutes);
+app.use("/api/payments",    paymentRoutes);
+app.use("/api/technicians", technicianRoutes);
+app.use("/api/admin",       adminRoutes);
 
-// Use ONLY the routes you need
-app.use("/api/auth", authRoutes);   //authentication related endpoints
-app.use("/api/users", userRoutes);   //user management endpoints
-app.use("/api/plans", planRoutes);   //✅ ADD THIS - repair plans endpoints
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ 
-    message: `Route ${req.method} ${req.url} not found`,
-    availableEndpoints: [
-      "/health",
-      "/api/auth",
-      "/api/users",
-      "/api/plans"      //✅ ADD THIS to available endpoints
-    ]
-  });
-});
-
-// Error handler
+app.use((req, res) => res.status(404).json({ message: "Route not found: " + req.method + " " + req.url }));
 app.use((err, req, res, next) => {
-  console.error(" Error:", err.stack);
-  res.status(500).json({ 
-    message: "Something went wrong!", 
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-  });
+  console.error("Error:", err.stack);
+  res.status(500).json({ message: "Server error", error: process.env.NODE_ENV === "development" ? err.message : "Internal error" });
 });
 
 const PORT = process.env.PORT || 5000;
-
-// Connect to DB and start server
 const startServer = async () => {
   try {
     await connectDB();
-    
-    const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log(`\n Server started successfully!`);
-      console.log(`=================================`);
-      console.log(` Listening on: http://localhost:${PORT}`);
-      console.log(`=================================`);
-      console.log(` API endpoints:`);
-      console.log(`   ➜ Health:   http://localhost:${PORT}/health`);
-      console.log(`   ➜ Auth:     http://localhost:${PORT}/api/auth`);
-      console.log(`   ➜ Users:    http://localhost:${PORT}/api/users`);
-      console.log(`   ➜ Plans:    http://localhost:${PORT}/api/plans`);      //✅ ADD THIS
-      console.log(`=================================`);
-      console.log(` Database: ${mongoose.connection.readyState === 1 ? 'Connected ' : 'Disconnected ❌'}`);
-      console.log(`=================================\n`);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log("\nFixMate Server running on http://localhost:" + PORT);
+      console.log("Routes: /api/auth, /api/plans, /api/services, /api/bookings, /api/payments, /api/technicians, /api/admin\n");
     });
-
   } catch (err) {
-    console.error(" Failed to start server:", err);
+    console.error("Failed to start:", err);
     process.exit(1);
   }
 };
-
 startServer();

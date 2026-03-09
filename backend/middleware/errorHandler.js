@@ -27,3 +27,4 @@ export const errorHandler = (err, req, res, next) => {
     message: error.message || 'Server Error'
   });
 };
+

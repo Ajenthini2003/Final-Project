@@ -33,6 +33,6 @@ const planSchema = new mongoose.Schema({
   timestamps: true 
 });
 
-// ✅ This line is crucial - it must be exactly like this
+// This line is crucial - it must be exactly like this
 const Plan = mongoose.model('Plan', planSchema);
 export default Plan;

@@ -6,7 +6,7 @@ import { admin } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-// ==================== USER CRUD ====================
+//.............. USER CRUD......................... 
 
 // @desc    Get all users (admin only)
 // @route   GET /api/users

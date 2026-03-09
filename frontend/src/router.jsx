@@ -5,6 +5,9 @@ import { useAuth } from "./app/contexts/AuthContext";
 import DashboardLayout from "./app/components/DashboardLayout";
 import AdminLayout from "./app/components/admin/AdminLayout";
 
+// Welcome / intro page
+import WelcomePage from "./app/pages/Welcomepage";
+
 // Your existing pages
 import LandingPage from "./app/pages/LandingPage";
 import LoginPage from "./app/pages/LoginPage";
@@ -19,6 +22,16 @@ import PlansPage from "./app/pages/PlansPage";
 import NotificationsPage from "./app/pages/NotificationsPage";
 import SupportPage from "./app/pages/SupportPage";
 import OnboardingPage from "./app/pages/OnboardingPage";
+
+// Technician pages
+import TechnicianLayout from "./app/components/layout/TechnicianLayout";
+import TechnicianDashboard from "./app/pages/technician/TechnicianDashboard";
+import TechnicianBookings from "./app/pages/technician/TechnicianBookings";
+import TechnicianSchedule from "./app/pages/technician/TechnicianSchedule";
+import TechnicianEarnings from "./app/pages/technician/TechnicianEarnings";
+import TechnicianProfile from "./app/pages/technician/TechnicianProfile";
+import TechnicianNotifications from "./app/pages/technician/TechnicianNotifications";
+import TechnicianReviews from "./app/pages/technician/TechnicianReviews";
 
 // Admin pages
 import AdminDashboard from "./app/pages/admin/AdminDashboard";
@@ -55,6 +68,10 @@ const withSuspense = (Component) => (
 export const router = createBrowserRouter([
   {
     path: "/",
+    element: withSuspense(WelcomePage),
+  },
+  {
+    path: "/home",
     element: withSuspense(LandingPage),
   },
   {
@@ -95,6 +112,23 @@ export const router = createBrowserRouter([
       { path: "history", element: withSuspense(ServiceHistoryPage) },
       { path: "payments", element: withSuspense(PaymentsPage) },
       { path: "notifications", element: withSuspense(NotificationsPage) },
+    ],
+  },
+  {
+    path: "/technician",
+    element: (
+      <ProtectedRoute allowedRoles={["technician", "admin"]}>
+        <TechnicianLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: withSuspense(TechnicianDashboard) },
+      { path: "bookings", element: withSuspense(TechnicianBookings) },
+      { path: "schedule", element: withSuspense(TechnicianSchedule) },
+      { path: "earnings", element: withSuspense(TechnicianEarnings) },
+      { path: "profile", element: withSuspense(TechnicianProfile) },
+      { path: "notifications", element: withSuspense(TechnicianNotifications) },
+      { path: "reviews", element: withSuspense(TechnicianReviews) },
     ],
   },
   {

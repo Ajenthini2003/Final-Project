@@ -1,22 +1,22 @@
 {
-  "name": "backend",
+  "name": "fixmate-backend",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "seed": "node seed/seedInitialData.js",
     "start": "node server.js",
     "dev": "nodemon server.js",
-    
-    "seed-services": "node seed/seedServices.js"
+    "seed:admin": "node seed/seedAdmin.js",
+    "seed:plans": "node seed/seedPlans.js",
+    "seed:services": "node seed/seedServices.js",
+    "seed:technicians": "node seed/seedTechnicians.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^7.6.3",
-    "mongodb": "^5.9.0"
+    "mongoose": "^7.8.9"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

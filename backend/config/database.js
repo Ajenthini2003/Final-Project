@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const connectDB = async () => {      //async means takestime 
   try {
-    const mongoURI = process.env.MONGO_URI ;
+    const mongoURI = process.env.MONGO_URI ;   //This is a security best practice - never hardcode database credentials.
     
     console.log("Attempting to connect to MongoDB...");
     console.log(" URI:", mongoURI.replace(/:([^:@]{3,})@/, ':****@')); // Hide password if present
@@ -10,11 +10,11 @@ const connectDB = async () => {      //async means takestime
     const conn = await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,             //Better connection monitoring
-      serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
+      serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds if server not found
     });
 
-    console.log(` MongoDB Connected: ${conn.connection.host}`);    //success message
-    console.log(` Database: ${conn.connection.name}`);
+    console.log(` MongoDB Connected: ${conn.connection.host}`); //Shows which MongoDB server we're connected to
+    console.log(` Database: ${conn.connection.name}`); //Shows which database we're using
     
     return conn;
   } catch (error) {
@@ -37,7 +37,7 @@ const connectDB = async () => {      //async means takestime
     
     // Don't exit immediately, but we need to handle this
     console.log('\n Failed to connect to MongoDB. Server cannot start without database.');
-    process.exit(1);
+    process.exit(1);        //exits the Node.js process with an error code (1 means failure
   }
 };
 

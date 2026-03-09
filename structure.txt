@@ -1,76 +1,42 @@
-├── backend/
-│   ├── app.js
-│   ├── config/
-│   │   ├── cloudinary.js
-│   │   ├── database.js
-│   │   ├── redis.js
-│   │   ├── socket.js
-│   │   └── stripe.js
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── bookingController.js
-│   │   ├── notificationController.js
-│   │   ├── paymentController.js
-│   │   ├── planController.js
-│   │   ├── reportController.js
-│   │   ├── serviceController.js
-│   │   ├── subscriptionController.js
-│   │   ├── technicianController.js
-│   │   └── userController.js
-│   ├── ecosystem.config.js
-│   ├── generateToken.js
-│   ├── jobs/
-│   │   ├── EmailJob.js
-│   │   └── NotificationJob.js
-│   ├── middleware/
-│   │   ├── adminAuth.js
-│   │   ├── authMiddleware.js
-│   │   ├── error/
-│   │   │   └── asyncHandler.js
-│   │   ├── errorHandler.js
-│   │   ├── security/
-│   │   │   ├── rateLimiter.js
-│   │   │   └── validation.js
-│   │   └── validateRequest.js
-│   ├── models/
-│   │   ├── Booking.js
-│   │   ├── Notification.js
-│   │   ├── Payment.js
-│   │   ├── Plan.js
-│   │   ├── Service.js
-│   │   ├── Technician.js
-│   │   └── User.js
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── routes/
-│   │   ├── auth.js
-│   │   ├── bookings.js
-│   │   ├── notifications.js
-│   │   ├── payments.js
-│   │   ├── plans.js
-│   │   ├── reports.js
-│   │   ├── services.js
-│   │   ├── technicians.js
-│   │   └── users.js
-│   ├── seed/
-│   │   ├── seedPlans.js
-│   │   └── seedServices.js
-│   ├── server.js
-│   ├── services/
-│   │   ├── AuthService.js
-│   │   ├── BookingService.js
-│   │   ├── CacheService.js
-│   │   ├── EmailService.js
-│   │   ├── NotificationService.js
-│   │   ├── PaymentsService.js
-│   │   └── SMSService.js
-│   ├── sockets/
-│   │   ├── BookingSocket.js
-│   │   └── index.js
-│   ├── test-env.js
-│   └── tests/
-│       ├── auth.test.js
-│       └── users.test.js
+backend/
+│
+├── 📁 config/
+│   └── 📄 database.js           # MongoDB connection configuration
+│
+├── 📁 controllers/
+│   ├── 📄 authController.js      # Authentication logic
+│   ├── 📄 planController.js       # Plan management logic
+│   ├── 📄 serviceController.js    # Service management logic
+│   └── 📄 userController.js       # User management logic
+│
+├── 📁 middleware/
+│   ├── 📄 authMiddleware.js       # JWT authentication middleware
+│   ├── 📄 errorHandler.js         # Global error handling
+│   └── 📄 roleMiddleware.js       # Role-based access control
+│
+├── 📁 models/
+│   ├── 📄 Plan.js                 # Plan schema/model
+│   ├── 📄 service.js              # Service schema/model
+│   └── 📄 User.js                 # User schema/model
+│
+├── 📁 routes/
+│   ├── 📄 auth.js                 # Authentication routes
+│   ├── 📄 plans.js                 # Plan routes
+│   ├── 📄 services.js              # Service routes
+│   └── 📄 users.js                 # User routes
+│
+├── 📁 seed/
+│   ├── 📄 seedPlans.js            # Seed data for plans
+│   └── 📄 seedServices.js         # Seed data for services
+│
+├── 📁 node_modules/                # Dependencies
+│
+├── 📄 .env                         # Environment variables
+├── 📄 jsconfig.json                # JavaScript configuration
+├── 📄 package.json                  # Project dependencies & scripts
+├── 📄 package-lock.json             # Locked dependency versions
+│
+└── 📄 server.js (or app.js)        # Main entry point (not shown but should exist)      
 ├── frontend/
 │   ├── guidelines/
 │   ├── package-lock.json
@@ -245,17 +211,6 @@
 │   │   │   │   └── ThemeContext.jsx
 │   │   │   ├── data/
 │   │   │   │   └── services.js
-│   │   │   ├── hooks/
-│   │   │   │   ├── useAuth.js
-│   │   │   │   ├── useBooking.js
-│   │   │   │   ├── useDebounce.js
-│   │   │   │   ├── useGeoLocation.js
-│   │   │   │   ├── useLocalStorage.js
-│   │   │   │   ├── useNotification.js
-│   │   │   │   ├── usePayment.js
-│   │   │   │   ├── usePermission.js
-│   │   │   │   ├── useResponsive.js
-│   │   │   │   └── useSocket.js
 │   │   │   ├── pages/
 │   │   │   │   ├── admin/
 │   │   │   │   │   ├── AdminDashboard.jsx
@@ -272,15 +227,7 @@
 │   │   │   │   │   ├── SettingsPage.jsx
 │   │   │   │   │   ├── TechniciansManagement.jsx
 │   │   │   │   │   └── UsersManagement.jsx
-│   │   │   │   ├── auth/
-│   │   │   │   │   ├── BookingsPage.jsx
-│   │   │   │   │   ├── OTPVerificationPage.jsx
-│   │   │   │   │   └── ResetPasswordPage.jsx
 │   │   │   │   ├── BookServicePage.jsx
-│   │   │   │   ├── checkout/
-│   │   │   │   │   ├── BookingFlow.jsx
-│   │   │   │   │   ├── ConfirmationPage.jsx
-│   │   │   │   │   └── PaymentPage.jsx
 │   │   │   │   ├── DashboardPage.jsx
 │   │   │   │   ├── LandingPage.jsx
 │   │   │   │   ├── LoginPage.jsx
@@ -289,64 +236,16 @@
 │   │   │   │   ├── PaymentsPage.jsx
 │   │   │   │   ├── PlansPage.jsx
 │   │   │   │   ├── ProfilePage.jsx
-│   │   │   │   ├── public/
-│   │   │   │   │   ├── AboutPage.jsx
-│   │   │   │   │   ├── BlogPage.jsx
-│   │   │   │   │   ├── ContactPage.jsx
-│   │   │   │   │   └── FAQPage.jsx
 │   │   │   │   ├── ServiceHistoryPage.jsx
 │   │   │   │   ├── ServicesPage.jsx
 │   │   │   │   ├── SignUpPage.jsx
 │   │   │   │   ├── SupportPage.jsx
-│   │   │   │   ├── technician/
-│   │   │   │   │   ├── AvailabilityPage.jsx
-│   │   │   │   │   ├── EarningsPage.jsx
-│   │   │   │   │   ├── JobsPage.jsx
-│   │   │   │   │   ├── TechnicianDashboard.jsx
-│   │   │   │   │   └── TechnicianProfilePage.jsx
 │   │   │   │   ├── TechniciansPage.jsx
-│   │   │   │   └── user/
-│   │   │   │       ├── AddressBookPage.jsx
-│   │   │   │       ├── BookingDetailsPage.jsx
-│   │   │   │       ├── BookingsPage.jsx
-│   │   │   │       ├── ReviewsPage.jsx
-│   │   │   │       ├── SettingsPage.jsx
-│   │   │   │       └── WalletPage.jsx
-│   │   │   └── store/
-│   │   │       ├── rootReducer.js
-│   │   │       ├── slices/
-│   │   │       │   ├── authSlice.js
-│   │   │       │   ├── bookingSlice.js
-│   │   │       │   ├── paymentSlice.js
-│   │   │       │   ├── technicianSlice.js
-│   │   │       │   ├── uiSlice.js
-│   │   │       │   └── userSlice.js
-│   │   │       └── store.js
 │   │   ├── App.jsx
-│   │   ├── lib/
-│   │   │   ├── constants/
-│   │   │   │   ├── config.js
-│   │   │   │   ├── roles.js
-│   │   │   │   ├── routes.js
-│   │   │   │   └── status.js
-│   │   │   ├── formatters/
-│   │   │   │   ├── currency.js
-│   │   │   │   ├── date.js
-│   │   │   │   └── phone.js
+│   │   ├── lib
 │   │   │   ├── utils.js
-│   │   │   └── validators/
-│   │   │       ├── auth.js
-│   │   │       ├── booking.js
-│   │   │       └── payment.js
 │   │   ├── main.jsx
 │   │   ├── router.jsx
 │   │   ├── styles/
-│   │   │   ├── components/
-│   │   │   └── themes/
-│   │   └── types/
-│   │       ├── api.js
-│   │       ├── booking.js
-│   │       ├── index.js
-│   │       └── user.js
 │   └── vite.config.js
 ├── generate-tree.js

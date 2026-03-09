@@ -1,4 +1,3 @@
-// src/app/pages/ServicesPage.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -49,7 +48,8 @@ import {
   Cpu,
 } from "lucide-react";
 
-// REMOVED: import { servicesApi } from "../../api/endpoints/services";
+// Import API functions
+import { getServices, getFeaturedServices } from "../../api";
 
 // Category Configuration with enhanced details
 const categoryConfig = {
@@ -170,348 +170,13 @@ const serviceImages = {
   emergency: "https://images.unsplash.com/photo-1584432810601-6c7f27d2362b?w=400",
 };
 
-// MOCK DATA - Replace with your actual data structure
-const mockServices = [
-  // Electrical Services
-  {
-    _id: "1",
-    name: "Electrical Wiring Repair",
-    description: "Professional wiring repair and maintenance for your home",
-    price: 2500,
-    duration: "1-2 hours",
-    category: "electrical",
-    rating: 4.8,
-    bookings: 245,
-    emergency: false,
-    tags: ["Wiring", "Safety Check", "Repair"],
-    features: ["Complete wiring inspection", "Fault detection", "Safety certification"]
-  },
-  {
-    _id: "2",
-    name: "Circuit Breaker Installation",
-    description: "Install new circuit breakers for enhanced safety",
-    price: 3500,
-    duration: "2-3 hours",
-    category: "electrical",
-    rating: 4.9,
-    bookings: 189,
-    emergency: true,
-    tags: ["Breaker", "Safety", "Installation"],
-    features: ["Breaker installation", "Load testing", "Safety certification"]
-  },
-  {
-    _id: "3",
-    name: "Emergency Electrical Repair",
-    description: "24/7 emergency electrical repair service",
-    price: 5000,
-    duration: "1 hour",
-    category: "electrical",
-    rating: 4.7,
-    bookings: 567,
-    emergency: true,
-    tags: ["Emergency", "24/7", "Fast Response"],
-    features: ["Immediate response", "Emergency diagnosis", "Quick fixes"]
-  },
-
-  // Plumbing Services
-  {
-    _id: "4",
-    name: "Leakage Repair",
-    description: "Fix all types of water leaks in pipes and fixtures",
-    price: 2000,
-    duration: "1-2 hours",
-    category: "plumbing",
-    rating: 4.6,
-    bookings: 312,
-    emergency: true,
-    tags: ["Leaks", "Water", "Repair"],
-    features: ["Leak detection", "Pipe repair", "Water damage prevention"]
-  },
-  {
-    _id: "5",
-    name: "Bathroom Plumbing",
-    description: "Complete bathroom plumbing installation and repair",
-    price: 4500,
-    duration: "3-4 hours",
-    category: "plumbing",
-    rating: 4.8,
-    bookings: 156,
-    emergency: false,
-    tags: ["Bathroom", "Installation", "Repair"],
-    features: ["Fixture installation", "Drain unclogging", "Water pressure check"]
-  },
-  {
-    _id: "6",
-    name: "Water Heater Installation",
-    description: "Install and repair water heating systems",
-    price: 5500,
-    duration: "2-3 hours",
-    category: "plumbing",
-    rating: 4.9,
-    bookings: 98,
-    emergency: false,
-    tags: ["Water Heater", "Installation", "Repair"],
-    features: ["Heater installation", "Temperature adjustment", "Maintenance tips"]
-  },
-
-  // Appliance Services
-  {
-    _id: "7",
-    name: "Washing Machine Repair",
-    description: "Expert repair for all washing machine brands",
-    price: 3000,
-    duration: "1-2 hours",
-    category: "appliance",
-    rating: 4.7,
-    bookings: 203,
-    emergency: false,
-    tags: ["Washing Machine", "Repair", "Maintenance"],
-    features: ["Motor check", "Drain pump repair", "Spin cycle fix"]
-  },
-  {
-    _id: "8",
-    name: "Refrigerator Service",
-    description: "Complete refrigerator repair and maintenance",
-    price: 3500,
-    duration: "1-2 hours",
-    category: "appliance",
-    rating: 4.8,
-    bookings: 167,
-    emergency: true,
-    tags: ["Fridge", "Cooling", "Repair"],
-    features: ["Compressor check", "Cooling test", "Gas refill"]
-  },
-  {
-    _id: "9",
-    name: "Oven & Microwave Repair",
-    description: "Fix all types of ovens and microwave ovens",
-    price: 2800,
-    duration: "1 hour",
-    category: "appliance",
-    rating: 4.6,
-    bookings: 134,
-    emergency: false,
-    tags: ["Oven", "Microwave", "Repair"],
-    features: ["Heating element check", "Timer repair", "Safety inspection"]
-  },
-
-  // AC Services
-  {
-    _id: "10",
-    name: "AC Gas Refill",
-    description: "Refill refrigerant gas for better cooling",
-    price: 4000,
-    duration: "1-2 hours",
-    category: "ac",
-    rating: 4.9,
-    bookings: 278,
-    emergency: false,
-    tags: ["AC", "Gas Refill", "Cooling"],
-    features: ["Gas level check", "Leak test", "Cooling performance test"]
-  },
-  {
-    _id: "11",
-    name: "AC Servicing",
-    description: "Complete AC cleaning and maintenance",
-    price: 2500,
-    duration: "1-2 hours",
-    category: "ac",
-    rating: 4.7,
-    bookings: 345,
-    emergency: false,
-    tags: ["AC", "Cleaning", "Maintenance"],
-    features: ["Filter cleaning", "Coil cleaning", "Performance check"]
-  },
-  {
-    _id: "12",
-    name: "AC Installation",
-    description: "Professional AC installation service",
-    price: 6000,
-    duration: "3-4 hours",
-    category: "ac",
-    rating: 4.8,
-    bookings: 89,
-    emergency: false,
-    tags: ["AC", "Installation", "New"],
-    features: ["Unit installation", "Mounting", "Testing"]
-  },
-
-  // Carpentry Services
-  {
-    _id: "13",
-    name: "Custom Furniture Making",
-    description: "Design and build custom furniture for your home",
-    price: 8000,
-    duration: "2-3 days",
-    category: "carpentry",
-    rating: 4.9,
-    bookings: 67,
-    emergency: false,
-    tags: ["Furniture", "Custom", "Wood"],
-    features: ["Custom design", "Quality wood", "Finishing"]
-  },
-  {
-    _id: "14",
-    name: "Door & Window Repair",
-    description: "Fix and maintain doors and windows",
-    price: 2000,
-    duration: "1-2 hours",
-    category: "carpentry",
-    rating: 4.5,
-    bookings: 156,
-    emergency: false,
-    tags: ["Doors", "Windows", "Repair"],
-    features: ["Hinge repair", "Lock fixing", "Frame adjustment"]
-  },
-
-  // Painting Services
-  {
-    _id: "15",
-    name: "Interior Wall Painting",
-    description: "Professional interior painting services",
-    price: 12000,
-    duration: "2-3 days",
-    category: "painting",
-    rating: 4.7,
-    bookings: 145,
-    emergency: false,
-    tags: ["Interior", "Painting", "Walls"],
-    features: ["Wall preparation", "Quality paint", "Clean finish"]
-  },
-  {
-    _id: "16",
-    name: "Exterior Painting",
-    description: "Weather-resistant exterior painting",
-    price: 18000,
-    duration: "3-4 days",
-    category: "painting",
-    rating: 4.6,
-    bookings: 89,
-    emergency: false,
-    tags: ["Exterior", "Painting", "Weather proof"],
-    features: ["Surface prep", "Weather resistant paint", "Protective coating"]
-  },
-
-  // Security Services
-  {
-    _id: "17",
-    name: "CCTV Installation",
-    description: "Install security cameras for home protection",
-    price: 15000,
-    duration: "4-5 hours",
-    category: "security",
-    rating: 4.9,
-    bookings: 234,
-    emergency: false,
-    tags: ["CCTV", "Security", "Camera"],
-    features: ["Camera installation", "DVR setup", "Mobile viewing"]
-  },
-  {
-    _id: "18",
-    name: "Smart Lock Installation",
-    description: "Install digital and smart locks",
-    price: 8500,
-    duration: "1-2 hours",
-    category: "security",
-    rating: 4.8,
-    bookings: 167,
-    emergency: false,
-    tags: ["Locks", "Smart Home", "Security"],
-    features: ["Lock installation", "Access setup", "Mobile control"]
-  },
-
-  // Electronics/Tech Services
-  {
-    _id: "19",
-    name: "Smart Home Setup",
-    description: "Set up your smart home devices and automation",
-    price: 7000,
-    duration: "2-3 hours",
-    category: "electronics",
-    rating: 4.7,
-    bookings: 123,
-    emergency: false,
-    tags: ["Smart Home", "Automation", "Setup"],
-    features: ["Device pairing", "Automation setup", "Voice control"]
-  },
-  {
-    _id: "20",
-    name: "WiFi Network Setup",
-    description: "Optimize your home WiFi network",
-    price: 3500,
-    duration: "1-2 hours",
-    category: "electronics",
-    rating: 4.6,
-    bookings: 189,
-    emergency: false,
-    tags: ["WiFi", "Network", "Internet"],
-    features: ["Router setup", "Coverage optimization", "Security config"]
-  },
-
-  // Cleaning Services
-  {
-    _id: "21",
-    name: "Deep Cleaning",
-    description: "Complete home deep cleaning service",
-    price: 8000,
-    duration: "4-5 hours",
-    category: "cleaning",
-    rating: 4.8,
-    bookings: 456,
-    emergency: false,
-    tags: ["Cleaning", "Deep Clean", "Home"],
-    features: ["Full home cleaning", "Sanitization", "Organizing"]
-  },
-  {
-    _id: "22",
-    name: "Sofa Cleaning",
-    description: "Professional sofa and upholstery cleaning",
-    price: 3500,
-    duration: "2-3 hours",
-    category: "cleaning",
-    rating: 4.7,
-    bookings: 234,
-    emergency: false,
-    tags: ["Sofa", "Upholstery", "Cleaning"],
-    features: ["Stain removal", "Deep cleaning", "Odor removal"]
-  },
-
-  // Emergency Services
-  {
-    _id: "23",
-    name: "24/7 Emergency Plumber",
-    description: "Immediate plumbing assistance anytime",
-    price: 6000,
-    duration: "30-60 min",
-    category: "emergency",
-    rating: 4.9,
-    bookings: 567,
-    emergency: true,
-    tags: ["Emergency", "24/7", "Plumbing"],
-    features: ["Immediate dispatch", "Emergency fix", "All hours support"]
-  },
-  {
-    _id: "24",
-    name: "Emergency Electrician",
-    description: "Round-the-clock electrical emergency service",
-    price: 6500,
-    duration: "30-60 min",
-    category: "emergency",
-    rating: 4.8,
-    bookings: 445,
-    emergency: true,
-    tags: ["Emergency", "24/7", "Electrical"],
-    features: ["Quick response", "Emergency repair", "Safety first"]
-  }
-];
-
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState("grid"); // grid or list
+  const [viewMode, setViewMode] = useState("grid");
   const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState("popular");
@@ -519,7 +184,6 @@ export default function ServicesPage() {
   
   const navigate = useNavigate();
 
-  // Fetch services from mock data (simulating API call)
   useEffect(() => {
     fetchServices();
   }, []);
@@ -527,17 +191,13 @@ export default function ServicesPage() {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Fetch from API
+      const data = await getServices();
+      setServices(data);
       
-      // Use mock data instead of API call
-      setServices(mockServices);
-      
-      // Set featured services (randomly select 3 for demo)
-      if (mockServices.length > 0) {
-        const shuffled = [...mockServices].sort(() => 0.5 - Math.random());
-        setFeaturedServices(shuffled.slice(0, 3));
-      }
+      // Fetch featured services
+      const featured = await getFeaturedServices();
+      setFeaturedServices(featured);
     } catch (error) {
       console.error("Error loading services:", error);
     } finally {
@@ -563,7 +223,6 @@ export default function ServicesPage() {
         s.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-    // Price filter
     const categoryServices = groupedServices[cat];
     const matchesPrice = categoryServices.some(
       s => s.price >= priceRange.min && s.price <= priceRange.max
@@ -1144,22 +803,7 @@ export default function ServicesPage() {
                             <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                             <span className="text-gray-700">{feature}</span>
                           </li>
-                        )) || (
-                          <>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                              <span className="text-gray-700">Professional technician</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                              <span className="text-gray-700">Quality guaranteed</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                              <span className="text-gray-700">6-month warranty</span>
-                            </li>
-                          </>
-                        )}
+                        ))}
                       </ul>
                     </div>
 
@@ -1181,7 +825,6 @@ export default function ServicesPage() {
                         variant="outline"
                         className="flex-1"
                         onClick={() => {
-                          // Handle contact
                           alert("Contact support: +94 11 234 5678");
                         }}
                       >
